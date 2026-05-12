@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+*{
+  font-family: 'Poppins',sans-serif;
+}
+:root {
+  --primary: #009dff;
+  --secondary: #fff;
+  --background: #05151f;
+  --secondbackground: #272d41;
+  --gradient_1: #4fadff;
+  --gradient_2: #87c7ff;
+  --footerbg:#06131C;
+}
+
+.button_shadow {
+  box-shadow: 0 4px 7px var(--primary);
+}
+
+.button_shadow-hover:hover {
+  box-shadow: 0 6px 8px var(--primary);
+}
+
+.gradient-border {
+
+  border: 2px solid transparent;
+  border-radius: 24px; /* Matches rounded-3xl */
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(
+      var(--secondbackground),
+      var(--secondbackground)
+    ),
+    linear-gradient(
+      to right,
+      var(--primary),
+      var(--gradient_1),
+      var(--gradient_2),
+      var(--secondary)
+    );
+}
+
+.modalcard_shadow {
+  box-shadow: 0 3px 7px var(--gradient_2);
+}
+.projectcard_shadow {
+  box-shadow: 0 3px 7px var(--secondbackground);
+}
+
