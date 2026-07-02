@@ -1,6 +1,8 @@
+import CustomCursor from "./components/CustomCursor";
 import Footer from "./components/Footer";
 import About from "./sections/About";
 import Contact from "./sections/Contact";
+import Experience from "./sections/Experience";
 import Home from "./sections/Home";
 import Projects from "./sections/Projects";
 import TechStack from "./sections/TechStack";
@@ -8,6 +10,7 @@ import TechStack from "./sections/TechStack";
 const App = () => {
   return (
     <div className="bg-[var(--background)]">
+      <CustomCursor />
       <Home />
 
       <About />
@@ -17,7 +20,7 @@ const App = () => {
       <TechStack />
 
       <Contact />
-      <Footer/>
+      <Footer />
     </div>
   );
 };
