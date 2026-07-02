@@ -1,9 +1,12 @@
 import { motion } from "framer-motion";
 import useAnimatedInView from "../hooks/useAnimatedInView";
+import useExperience from "../hooks/useExperience";
+import { Experience as ExperienceType } from "../api/aboutService";
+import { JSX } from "react";
 
 const MotionText = motion.div;
 
-const icons = {
+const icons: Record<string, JSX.Element> = {
     mobile: (
         <path
             d="M9 3h6a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z M11 18h2"
@@ -56,61 +59,114 @@ const icons = {
     ),
 };
 
-const IconBadge = ({ name }: { name: keyof typeof icons }) => (
+const IconBadge = ({ name }: { name: string }) => (
     <div
         className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
         style={{ background: "rgba(0,157,255,0.1)", color: "var(--primary)" }}
     >
         <svg width="20" height="20" viewBox="0 0 24 24">
-            {icons[name]}
+            {icons[name] ?? icons["api"]}
         </svg>
     </div>
 );
 
-const contributionAreas: {
-    icon: keyof typeof icons;
-    title: string;
-    description: string;
-}[] = [
-        {
-            icon: "mobile",
-            title: "Cross-platform mobile development",
-            description:
-                "Built and maintained production Flutter applications delivering responsive, user-friendly experiences on both Android and iOS.",
-        },
-        {
-            icon: "calendar",
-            title: "End-to-end booking workflows",
-            description:
-                "Designed the full booking flow — branch selection, time-slot availability, equipment rental, confirmation, payment, and booking history.",
-        },
-        {
-            icon: "api",
-            title: "API integration & performance",
-            description:
-                "Integrated RESTful APIs with backend services, implemented state management with GetX, and optimized performance through data sync and local caching.",
-        },
-        {
-            icon: "cart",
-            title: "Restaurant POS contribution",
-            description:
-                "Built responsive UI components, product and category management, pagination, image caching, and network error handling.",
-        },
-        {
-            icon: "design",
-            title: "UI/UX design contribution",
-            description:
-                "Contributed to UI/UX design for the shopping mobile app and restaurant mobile app, shaping key screens and interaction flows before development.",
-        },
-    ];
+const formatDate = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 
-const techStack = ["Flutter", "GetX", "REST APIs", "Git", "Bitbucket", "CI/CD", "Worklenz"];
+const ExperienceCard = ({ exp }: { exp: ExperienceType }) => {
+    const { ref: cardRef, isInView: isCardInView } = useAnimatedInView<HTMLDivElement>();
+    const isOdd = exp.contributions.length % 2 === 1;
+
+    return (
+        <motion.div
+            ref={cardRef}
+            initial={{ opacity: 0, y: 40 }}
+            animate={isCardInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="max-w-4xl mx-auto rounded-2xl overflow-hidden mb-10 last:mb-0"
+            style={{
+                background: "var(--secondbackground)",
+                border: "1px solid rgba(0,157,255,0.18)",
+            }}
+        >
+            {/* Role header strip */}
+            <div
+                className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-6 md:px-8 md:py-6"
+                style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+            >
+                <div>
+                    <h2 className="text-[var(--secondary)] text-xl md:text-2xl font-bold">
+                        {exp.position}
+                    </h2>
+                    <p className="mt-1 text-md md:text-lg" style={{ color: "var(--primary)" }}>
+                        {exp.company}
+                    </p>
+                </div>
+                <span
+                    className="inline-block self-start md:self-auto text-sm font-semibold px-3 py-1 rounded-full"
+                    style={{
+                        fontFamily: "'JetBrains Mono', monospace",
+                        color: "var(--primary)",
+                        background: "rgba(0,157,255,0.1)",
+                    }}
+                >
+                    {formatDate(exp.start_date)} — {exp.currently_working ? "Present" : formatDate(exp.end_date ?? exp.start_date)}
+                </span>
+            </div>
+
+            {/* Contribution grid */}
+            <div className="grid md:grid-cols-2 gap-px" style={{ background: "rgba(255,255,255,0.06)" }}>
+                {exp.contributions.map((area, index) => {
+                    const isLastOdd = isOdd && index === exp.contributions.length - 1;
+                    return (
+                        <div
+                            key={area.title}
+                            className={`p-6 md:p-7 flex gap-4 ${isLastOdd ? "md:col-span-2" : ""}`}
+                            style={{ background: "var(--secondbackground)" }}
+                        >
+                            <IconBadge name={area.icon} />
+                            <div>
+                                <h3 className="text-[var(--secondary)] font-semibold text-md md:text-lg mb-1.5">
+                                    {area.title}
+                                </h3>
+                                <p
+                                    className="text-sm md:text-base font-light leading-6"
+                                    style={{ color: "rgba(255,255,255,0.6)" }}
+                                >
+                                    {area.description}
+                                </p>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Tech stack strip */}
+            <div
+                className="flex flex-wrap gap-2 p-6 md:px-8 md:py-6"
+                style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
+            >
+                {exp.technologies.map((tech) => (
+                    <span
+                        key={tech}
+                        className="text-xs md:text-sm px-3 py-1 rounded-full"
+                        style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            color: "rgba(255,255,255,0.7)",
+                            border: "1px solid rgba(255,255,255,0.12)",
+                        }}
+                    >
+                        {tech}
+                    </span>
+                ))}
+            </div>
+        </motion.div>
+    );
+};
 
 const Experience = () => {
-    const { ref: headerRef, isInView: isHeaderInView } =
-        useAnimatedInView<HTMLDivElement>();
-    const { ref: cardRef, isInView: isCardInView } =
-        useAnimatedInView<HTMLDivElement>();
+    const { ref: headerRef, isInView: isHeaderInView } = useAnimatedInView<HTMLDivElement>();
+    const { data: experiences, loading, error } = useExperience();
 
     return (
         <div className="items-center justify-center px-2 mt-20">
@@ -121,7 +177,6 @@ const Experience = () => {
                     animate={isHeaderInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -100 }}
                     transition={{ duration: 1, ease: "easeOut" }}
                 >
-
                     <h1
                         className="text-center text-[var(--secondary)] md:text-4xl text-3xl mb-14 font-bold"
                         style={{ fontFamily: "'Syne', sans-serif" }}
@@ -131,90 +186,18 @@ const Experience = () => {
                 </MotionText>
             </div>
 
-            <motion.div
-                ref={cardRef}
-                initial={{ opacity: 0, y: 40 }}
-                animate={isCardInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="max-w-4xl mx-auto rounded-2xl overflow-hidden"
-                style={{
-                    background: "var(--secondbackground)",
-                    border: "1px solid rgba(0,157,255,0.18)",
-                }}
-            >
-                {/* Role header strip */}
-                <div
-                    className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-6 md:px-8 md:py-6"
-                    style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
-                >
-                    <div>
-                        <h2 className="text-[var(--secondary)] text-xl md:text-2xl font-bold">
-                            Software Engineer Intern
-                        </h2>
-                        <p className="mt-1 text-md md:text-lg" style={{ color: "var(--primary)" }}>
-                            SOFF Cricket Facility
-                        </p>
-                    </div>
-                    <span
-                        className="inline-block self-start md:self-auto text-sm font-semibold px-3 py-1 rounded-full"
-                        style={{
-                            fontFamily: "'JetBrains Mono', monospace",
-                            color: "var(--primary)",
-                            background: "rgba(0,157,255,0.1)",
-                        }}
-                    >
-                        May 2025 — Oct 2025
-                    </span>
-                </div>
+            {loading && (
+                <p className="text-center" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    Loading...
+                </p>
+            )}
+            {error && (
+                <p className="text-center" style={{ color: "#f87171" }}>
+                    Couldn&rsquo;t load Experience content. Please try again later.
+                </p>
+            )}
 
-                {/* Contribution grid */}
-                <div className="grid md:grid-cols-2 gap-px" style={{ background: "rgba(255,255,255,0.06)" }}>
-                    {contributionAreas.map((area, index) => {
-                        const isLastOdd =
-                            contributionAreas.length % 2 === 1 && index === contributionAreas.length - 1;
-                        return (
-                            <div
-                                key={area.title}
-                                className={`p-6 md:p-7 flex gap-4 ${isLastOdd ? "md:col-span-2" : ""}`}
-                                style={{ background: "var(--secondbackground)" }}
-                            >
-                                <IconBadge name={area.icon} />
-                                <div>
-                                    <h3 className="text-[var(--secondary)] font-semibold text-md md:text-lg mb-1.5">
-                                        {area.title}
-                                    </h3>
-                                    <p
-                                        className="text-sm md:text-base font-light leading-6"
-                                        style={{ color: "rgba(255,255,255,0.6)" }}
-                                    >
-                                        {area.description}
-                                    </p>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-
-                {/* Tech stack strip */}
-                <div
-                    className="flex flex-wrap gap-2 p-6 md:px-8 md:py-6"
-                    style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
-                >
-                    {techStack.map((tech) => (
-                        <span
-                            key={tech}
-                            className="text-xs md:text-sm px-3 py-1 rounded-full"
-                            style={{
-                                fontFamily: "'JetBrains Mono', monospace",
-                                color: "rgba(255,255,255,0.7)",
-                                border: "1px solid rgba(255,255,255,0.12)",
-                            }}
-                        >
-                            {tech}
-                        </span>
-                    ))}
-                </div>
-            </motion.div>
+            {experiences && experiences.map((exp) => <ExperienceCard key={exp.id} exp={exp} />)}
         </div>
     );
 };
