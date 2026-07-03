@@ -2,7 +2,6 @@ import CustomCursor from "./components/CustomCursor";
 import Footer from "./components/Footer";
 import About from "./sections/About";
 import Contact from "./sections/Contact";
-import Experience from "./sections/Experience";
 import Home from "./sections/Home";
 import Projects from "./sections/Projects";
 import TechStack from "./sections/TechStack";
